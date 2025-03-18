@@ -1,4 +1,4 @@
-// app.js
+// server.js
 //const express = require("express");
 import express from "express";
 //const cors = require("cors");
@@ -24,3 +24,6 @@ app.post("/api/proxy", async (req, res) => {
 app.listen(4002, () => {
   console.log("Proxy server running on port 4002");
 });
+
+// https://github.com/gjone124/restaurant-finder-frontend/tree/stage-1
+// https://github.com/gjone124/restaurant-finder-backend/tree/stage-2
