@@ -1,18 +1,35 @@
 {
   "name": "restaurant-finder-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "gjone124",
   "license": "ISC",
   "description": "",
-  "type": "module",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "celebrate": "^15.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "node-fetch": "^3.3.2"
+    "express-rate-limit": "^7.5.0",
+    "express-winston": "^4.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.2",
+    "node-fetch": "^3.3.2",
+    "validator": "^13.12.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-import": "^2.31.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^2.8.8"
   }
 }
