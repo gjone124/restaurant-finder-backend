@@ -94,8 +94,94 @@ const deleteItem = (request, response, next) => {
     });
 };
 
+const findRestaurants = async (request, response, next) => {
+  const { query } = request.params;
+  // Fetch restaurant details from Google Places API
+
+  const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+
+  // IMPORTANT: In a production environment, this request should be proxied through a backend server
+  // Direct frontend calls to Google Places API will typically be blocked by CORS
+  const proxyUrl = "http://localhost:3001/api/proxy"; // proxy endpoint on backend is needed to run Google Places API
+  const googlePlacesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
+    query
+  )}&type=restaurant&key=${GOOGLE_PLACES_API_KEY}`;
+
+  try {
+    const placesResponse = await fetch(googlePlacesUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!placesResponse.ok) {
+      throw new Error(`Google Places API error: ${placesResponse.status}`);
+    }
+
+    const data = await handleServerResponse(placesResponse);
+
+    console.log(`Searching for: ${query}`);
+
+    if (data.results && data.results.length > 0) {
+      // Process each place to get additional details including photos
+      const placesWithDetails = await Promise.all(
+        data.results.slice(0, 6).map(async (place) => {
+          console.log(
+            `Google Places Result - Name: ${place.name}, Lat: ${place.geometry.location.lat}, Lng: ${place.geometry.location.lng}`
+          );
+          // Get place details to retrieve website and other information
+          const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,website,photos&key=${GOOGLE_PLACES_API_KEY}`;
+
+          const detailsResponse = await fetch(detailsUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!detailsResponse.ok) {
+            throw new Error(
+              `Google Places Details API error: ${detailsResponse.status}`
+            );
+          }
+
+          const detailsData = await detailsResponse.json();
+          const details = detailsData.result || {};
+
+          return {
+            name: place.name,
+            address: place.formatted_address,
+            website: details.website || "No website available",
+            // Get first photo or use placeholder
+            image:
+              details.photos && details.photos.length > 0
+                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${details.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`
+                : "https://via.placeholder.com/400?text=No+Image",
+            location: place.geometry.location,
+          };
+        })
+      );
+
+      return response.status(200).send(placesWithDetails);
+    }
+    return response.status(200).send([]);
+  } catch (error) {
+    console.error("Error fetching Google Places data:", error);
+    return next(new Error(`Google Places API error: ${error.message}`));
+  }
+};
+
+function handleServerResponse(response) {
+  if (response.ok) {
+    return response.json();
+  }
+  return Promise.reject(`Error: ${response.status}`);
+}
+
 module.exports = {
   createItem,
   getItems,
   deleteItem,
+  findRestaurants,
 };

@@ -1,10 +1,11 @@
 const express = require("express");
+require("dotenv").config();
 
 const mongoose = require("mongoose");
 
 const cors = require("cors");
 
-const fetch = (...args) =>
+const fetchData = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const mainRouter = require("./routes/index");
@@ -27,7 +28,7 @@ app.use("/", mainRouter);
 app.post("/api/proxy", async (req, res) => {
   try {
     const { url } = req.body;
-    const response = await fetch(url);
+    const response = await fetchData(url);
     const data = await response.json();
     res.json(data);
   } catch (error) {

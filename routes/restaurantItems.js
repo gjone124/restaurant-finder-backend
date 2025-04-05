@@ -4,6 +4,7 @@ const {
   createItem,
   getItems,
   deleteItem,
+  findRestaurants,
 } = require("../controllers/restaurantItems");
 
 const auth = require("../middlewares/auth");
@@ -18,10 +19,15 @@ const {
 // Create (POST /items route; add "auth" back in after testing)
 router.post("/", auth, validateCreateItem, createItem);
 
-// Read (GET /items route)
+// Read #1 (GET /items route) (gets data for items)
 router.get("/", getItems);
 
-// Delete Method #1 (DELETE /items/:itemId route)
+// Read #2 (GET /items/:query route) (gets data for restaurants from Google Places API)
+// this was previously in the frontend but was moved to the backend
+// to prevent a user from potentially seeing the API key
+router.get("/:query", findRestaurants);
+
+// Delete (DELETE /items/:itemId route) (deletes specified item)
 router.delete("/:itemId", auth, validateItemId, deleteItem);
 
 module.exports = router;
