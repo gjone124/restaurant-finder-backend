@@ -2,7 +2,7 @@
 
 **Link To Custom Domain For Backend of This Project (Stage 2)**
 
-https://restaurant-finder.theoceanforest.com
+https://api.restaurant-finder.theoceanforest.com
 
 **Link To Frontend Application Of This Project**
 
