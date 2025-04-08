@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 
-const fetchData = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+// const fetchData = (...args) =>
+//   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const BadRequestError = require("../utils/errors/BadRequestError");
 const ConflictError = require("../utils/errors/ConflictError");
@@ -134,7 +134,7 @@ const getUserLocation = async (req, res, next) => {
     return next(new BadRequestError("Latitude and longitude are required."));
   }
 
-  const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+  const { GOOGLE_PLACES_API_KEY } = process.env;
   const reverseGeocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_PLACES_API_KEY}`;
 
   try {
@@ -151,7 +151,7 @@ const getUserLocation = async (req, res, next) => {
     let stateOrRegion = "";
     let country = "";
 
-    for (const component of data.results[0].address_components) {
+    data.results[0].address_components.forEach((component) => {
       if (component.types.includes("locality")) {
         city = component.long_name;
       }
@@ -161,7 +161,7 @@ const getUserLocation = async (req, res, next) => {
       if (component.types.includes("country")) {
         country = component.long_name;
       }
-    }
+    });
 
     // Apply formatting rules
     if (country === "United States") {

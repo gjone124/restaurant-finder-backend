@@ -1,29 +1,41 @@
+const { MONGO_SERVER_ADDRESS } = require("./utils/config");
 const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
 
-const mongoose = require("mongoose");
-
-const cors = require("cors");
+const { errors } = require("celebrate");
+const helmet = require("helmet");
+const rateLimiter = require("./middlewares/rateLimiter");
 
 const fetchData = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const mainRouter = require("./routes/index");
+const errorHandler = require("./middlewares/error-handler");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/restaurant_finder_db")
+  .connect(MONGO_SERVER_ADDRESS)
   .then(() => {
     console.log("Connected to Database");
   })
   .catch(console.error);
 
-app.use(cors());
+app.use(helmet());
+app.use(rateLimiter);
 app.use(express.json());
+app.use(cors());
+app.use(requestLogger);
 
 app.use("/", mainRouter);
+
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.post("/api/proxy", async (req, res) => {
   try {

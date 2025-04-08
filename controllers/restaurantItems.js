@@ -7,6 +7,13 @@ const NotFoundError = require("../utils/errors/NotFoundError");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+function handleServerResponse(response) {
+  if (response.ok) {
+    return response.json();
+  }
+  return Promise.reject(new Error(`Error: ${response.status}`));
+}
+
 // CRUD (Create, Read, Update, Delete)
 
 // Create (POST /items route)
@@ -98,11 +105,10 @@ const findRestaurants = async (request, response, next) => {
   const { query } = request.params;
   // Fetch restaurant details from Google Places API
 
-  const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+  const { GOOGLE_PLACES_API_KEY } = process.env;
 
   // IMPORTANT: In a production environment, this request should be proxied through a backend server
   // Direct frontend calls to Google Places API will typically be blocked by CORS
-  const proxyUrl = "http://localhost:3001/api/proxy"; // proxy endpoint on backend is needed to run Google Places API
   const googlePlacesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
     query
   )}&type=restaurant&key=${GOOGLE_PLACES_API_KEY}`;
@@ -171,13 +177,6 @@ const findRestaurants = async (request, response, next) => {
     return next(new Error(`Google Places API error: ${error.message}`));
   }
 };
-
-function handleServerResponse(response) {
-  if (response.ok) {
-    return response.json();
-  }
-  return Promise.reject(`Error: ${response.status}`);
-}
 
 module.exports = {
   createItem,
