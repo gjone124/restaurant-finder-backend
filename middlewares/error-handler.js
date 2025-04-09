@@ -1,4 +1,4 @@
-const errorHandler = (error, response) => {
+const errorHandler = (error, request, response, next) => {
   // log error to console
   console.error(error.stack);
 
@@ -9,6 +9,7 @@ const errorHandler = (error, response) => {
   response.status(statusCode).send({
     message: statusCode === 500 ? "Internal Server Error" : message,
   });
+  next();
 };
 
 module.exports = errorHandler;

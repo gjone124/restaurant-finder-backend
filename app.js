@@ -1,4 +1,3 @@
-const { MONGO_SERVER_ADDRESS } = require("./utils/config");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -7,6 +6,8 @@ require("dotenv").config();
 const { errors } = require("celebrate");
 const helmet = require("helmet");
 const rateLimiter = require("./middlewares/rateLimiter");
+
+const { MONGO_SERVER_ADDRESS } = require("./utils/config");
 
 const fetchData = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
@@ -58,3 +59,6 @@ app.listen(PORT, () => {
 // https://discord.com/channels/1078663743568883783/1184956225637597194/1204145014746251395
 
 // sudo cp /etc/nginx/restaurant-finder.theoceanforest.com/default /etc/nginx/restaurant-finder.theoceanforest.com/final-project
+
+// to answer the reviewer's comment, there is a .env file on the server that is not saved on github (it's within the .gitignore file)
+// & the .env file has the values for JWT_SECRET, the API key, and the Mongo Server Address
